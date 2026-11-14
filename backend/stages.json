@@ -1,0 +1,101 @@
+{
+  "outcomes": [
+    {"value": "agreed_to_receive_report", "label": "Agreed to receive report"},
+    {"value": "next_step_agreed", "label": "Meeting / call at a set time"},
+    {"value": "interested", "label": "Interested, no fixed next step"},
+    {"value": "follow_up", "label": "Call again later"},
+    {"value": "not_interested", "label": "Not interested"},
+    {"value": "do_not_call", "label": "Asked not to be called"},
+    {"value": "wrong_person", "label": "Wrong person"},
+    {"value": "moved_company", "label": "Left the company"},
+    {"value": "call_again", "label": "Bad line / language, retry"}
+  ],
+  "stages": [
+    {
+      "n": 1, "name": "Opening",
+      "purpose": "Reach the right person and say who you are.",
+      "may_say": [
+        "I no longer work there.",
+        "Who is this calling from?",
+        "That person does not sit here / wrong number.",
+        "I am busy right now."
+      ],
+      "taps": ["Right person", "Wrong person", "Left the company", "Reception / assistant", "Busy, call later"]
+    },
+    {
+      "n": 2, "name": "Purpose",
+      "purpose": "Say why you called in one or two sentences they could repeat to a colleague.",
+      "may_say": [
+        "What is this regarding?",
+        "What is a growth report?",
+        "Where did you get my number?",
+        "Why are you doing this for free?"
+      ],
+      "taps": ["Asked what we do", "Asked where we got number", "Asked why free", "Said it is a sales call", "Let me go on"]
+    },
+    {
+      "n": 3, "name": "Permission",
+      "purpose": "Find out if they can talk now: a clear yes, no, or a time to call back.",
+      "may_say": [
+        "Yes, go ahead.",
+        "Call me tomorrow / after 3 PM.",
+        "Send it on WhatsApp or email first.",
+        "I am driving / travelling."
+      ],
+      "taps": ["Clear yes", "Gave a callback time", "Send it first", "No clear answer", "Said no"]
+    },
+    {
+      "n": 4, "name": "Their business",
+      "purpose": "Ask about their company and work before saying more about yours.",
+      "may_say": [
+        "One-line answer, then waits for the pitch.",
+        "We do not do that / that is another division.",
+        "You tell me about yourself first."
+      ],
+      "taps": ["Answered briefly", "Talked at length", "Corrected us", "Asked us first"]
+    },
+    {
+      "n": 5, "name": "Their need",
+      "purpose": "Hear what they are trying to do, in their own words. Write down exactly what they say.",
+      "may_say": [
+        "A goal: revenue, profitability, skilled manpower, new products.",
+        "We are fine as we are.",
+        "We handle all of that in-house.",
+        "What can you do for a company like ours?"
+      ],
+      "taps": ["Named a goal", "Named a problem", "Said all is fine", "Has it in-house", "Asked what we can do"]
+    },
+    {
+      "n": 6, "name": "Objection",
+      "purpose": "Understand the reason behind a no. A reason you understand can be answered.",
+      "may_say": [
+        "I am not the right person / decisions are made elsewhere.",
+        "Send it in writing first.",
+        "We have our own team or consultant.",
+        "Not interested right now."
+      ],
+      "taps": ["Not right person", "Send in writing", "Has a provider", "In-house team", "Not interested", "Too busy"]
+    },
+    {
+      "n": 7, "name": "Next step",
+      "purpose": "Agree one concrete thing, with a named time or channel.",
+      "may_say": [
+        "Send the details on WhatsApp / email.",
+        "Call me on a named day and time.",
+        "Speak to my colleague (with or without number).",
+        "I will look at it and revert."
+      ],
+      "taps": ["Report on WhatsApp", "Report on email", "Call at named time", "Meeting booked", "Referral given", "Nothing fixed"]
+    },
+    {
+      "n": 8, "name": "Close",
+      "purpose": "End clearly. Record the outcome, the next step and their words from stage 5.",
+      "may_say": [
+        "Thank you, bye.",
+        "The line dropped or they hung up.",
+        "A polite goodbye after a no (still a no)."
+      ],
+      "taps": ["Clean goodbye", "Line dropped", "Hung up"]
+    }
+  ]
+}
