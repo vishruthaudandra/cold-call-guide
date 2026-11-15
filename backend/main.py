@@ -131,10 +131,15 @@ async def suggest(body: SuggestReq):
     if not LLM_KEY:
         raise HTTPException(503, "LLM is not configured")
     s = STAGES[body.stage]
+    stage_examples = "\n".join(f"- {line}" for line in s.get("may_say", []))
+    stage_taps = ", ".join(s.get("taps", []))
     prompt = (
         "You are helping a salesperson on a live cold call. The company is a growth-analysis firm "
         "calling Indian business owners and directors. "
         f'The call is at the stage "{s["name"]}", whose purpose is: {s["purpose"]} '
+        f"The stage guide says prospects at this moment may say:\n{stage_examples}\n"
+        f"The caller can record what happened using one of these labels: {stage_taps}. "
+        "Use that guide only as background; respond to the prospect's exact words below, not to a guessed scenario. "
         f'The prospect just said: "{body.prospect_words}". '
         "Write only the caller's next spoken line, in natural conversational language. "
         "Answer the prospect's specific point directly; do not give generic filler or start with an incomplete phrase. "
