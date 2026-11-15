@@ -1,5 +1,6 @@
 """Cold-call guide backend (FastAPI). Holds the Supabase and LLM keys; the browser never sees them."""
 import json
+import logging
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,12 +14,13 @@ from pydantic import BaseModel, Field
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 LLM_KEY = os.environ.get("GEMINI_API_KEY", "")
-LLM_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+LLM_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
 ORIGINS = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",") if o.strip()]
 
 CONTENT = json.loads((Path(__file__).parent / "stages.json").read_text(encoding="utf-8"))
 STAGES = {s["n"]: s for s in CONTENT["stages"]}
 OUTCOMES = {o["value"] for o in CONTENT["outcomes"]}
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title="Cold-call guide")
 app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_methods=["*"], allow_headers=["*"])
@@ -139,14 +141,26 @@ async def suggest(body: SuggestReq):
         "Do not invent facts, prices or results. Do not push if they said no; acknowledge and ask one easy question."
     )
     try:
-        async with httpx.AsyncClient(timeout=8) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0)) as client:
             r = await client.post(
                 f"https://generativelanguage.googleapis.com/v1beta/models/{LLM_MODEL}:generateContent",
                 headers={"x-goog-api-key": LLM_KEY},
                 json={"contents": [{"parts": [{"text": prompt}]}],
                       "generationConfig": {"maxOutputTokens": 120, "temperature": 0.4}})
-        r.raise_for_status()
+    except httpx.HTTPError as exc:
+        logger.error("Gemini request failed before receiving a response (%s)", type(exc).__name__)
+        raise HTTPException(502, "Gemini could not be reached. Check the Render service logs.")
+    if r.is_error:
+        try:
+            provider_error = r.json().get("error", {}).get("message", r.reason_phrase)
+        except ValueError:
+            provider_error = r.reason_phrase
+        provider_error = str(provider_error)[:300]
+        logger.error("Gemini returned HTTP %s: %s", r.status_code, provider_error)
+        raise HTTPException(502, f"Gemini returned HTTP {r.status_code}: {provider_error}")
+    try:
         text = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except (httpx.HTTPError, KeyError, IndexError, ValueError):
-        raise HTTPException(502, "Could not generate a suggestion. Use the common replies on screen.")
+    except (KeyError, IndexError, ValueError):
+        logger.error("Gemini response did not contain a text candidate (model=%s)", LLM_MODEL)
+        raise HTTPException(502, "Gemini returned no text suggestion. Check the Render service logs.")
     return {"suggestion": text}
