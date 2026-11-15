@@ -136,9 +136,15 @@ async def suggest(body: SuggestReq):
         "calling Indian business owners and directors. "
         f'The call is at the stage "{s["name"]}", whose purpose is: {s["purpose"]} '
         f'The prospect just said: "{body.prospect_words}". '
-        "Suggest what the caller says next, in at most two short spoken sentences. "
+        "Write only the caller's next spoken line, in natural conversational language. "
+        "Answer the prospect's specific point directly; do not give generic filler or start with an incomplete phrase. "
+        "Use one or two short sentences, no more than 35 words total. Do not include a label, explanation, quotation marks, or stage directions. "
+        "Move the conversation one small step toward the purpose of this stage. "
+        "If the prospect asks for information, answer briefly and ask one relevant follow-up. "
+        "If the prospect declines, acknowledge it respectfully and do not keep selling. "
         "If the prospect used Hindi or Hinglish, reply in the same mix. "
-        "Do not invent facts, prices or results. Do not push if they said no; acknowledge and ask one easy question."
+        "Do not invent facts, prices, results, prior contact, consent, or commitments. "
+        "If their meaning is unclear, ask one short clarifying question instead of guessing."
     )
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0)) as client:
