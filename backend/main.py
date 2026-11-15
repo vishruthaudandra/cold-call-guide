@@ -21,6 +21,16 @@ CONTENT = json.loads((Path(__file__).parent / "stages.json").read_text(encoding=
 STAGES = {s["n"]: s for s in CONTENT["stages"]}
 OUTCOMES = {o["value"] for o in CONTENT["outcomes"]}
 logger = logging.getLogger("uvicorn.error")
+REPLY_GUIDANCE = {
+    1: "Verify the person politely. If they are the wrong contact, avoid pitching and ask for the right contact only if appropriate.",
+    2: "Explain the reason for the call in plain language, then ask permission to continue.",
+    3: "Ask whether now is a good time. Respect a no and agree a specific callback only if they offer one.",
+    4: "Ask one open question about their business, then listen instead of pitching over the answer.",
+    5: "Reflect the prospect's stated goal or problem accurately, then ask one useful follow-up question.",
+    6: "Acknowledge the objection without arguing. Ask one brief question to understand it, unless they clearly decline.",
+    7: "Confirm the agreed action, channel, and time. Do not add a commitment they did not make.",
+    8: "Thank them, confirm any agreed next step briefly, and close the conversation politely.",
+}
 
 app = FastAPI(title="Cold-call guide")
 app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_methods=["*"], allow_headers=["*"])
@@ -137,13 +147,15 @@ async def suggest(body: SuggestReq):
         "You are helping a salesperson on a live cold call. The company is a growth-analysis firm "
         "calling Indian business owners and directors. "
         f'The call is at the stage "{s["name"]}", whose purpose is: {s["purpose"]} '
+        f"For this stage, the caller's response goal is: {REPLY_GUIDANCE[body.stage]} "
         f"The stage guide says prospects at this moment may say:\n{stage_examples}\n"
         f"The caller can record what happened using one of these labels: {stage_taps}. "
         "Use that guide only as background; respond to the prospect's exact words below, not to a guessed scenario. "
         f'The prospect just said: "{body.prospect_words}". '
         "Write only the caller's next spoken line, in natural conversational language. "
-        "Answer the prospect's specific point directly; do not give generic filler or start with an incomplete phrase. "
-        "Use one or two short sentences, no more than 35 words total. Do not include a label, explanation, quotation marks, or stage directions. "
+        "Answer the prospect's specific point directly. Write a complete grammatical sentence, never a fragment. "
+        "A suitable answer sounds like: 'We help businesses identify growth opportunities. Is a brief overview okay now?' Do not copy this example unless it directly fits. "
+        "Use one or two short sentences, no more than 35 words total, and end with punctuation. Do not include a label, explanation, quotation marks, or stage directions. "
         "Move the conversation one small step toward the purpose of this stage. "
         "If the prospect asks for information, answer briefly and ask one relevant follow-up. "
         "If the prospect declines, acknowledge it respectfully and do not keep selling. "

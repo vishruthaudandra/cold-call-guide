@@ -2,6 +2,12 @@
 
 A live companion screen for a salesperson on a cold call. It guides the caller through eight stages, captures what happened and the prospect's own words, can suggest a reply with Gemini, and keeps a history of calls in Supabase.
 
+## Live deployment
+
+- App: https://cold-call-guide-cv2s.vercel.app
+- Backend health: https://cold-call-guide-hpi8.onrender.com/health
+- Source: https://github.com/vishruthaudandra/cold-call-guide
+
 ## Project structure
 
 - `frontend/` — Vite single-page app, deployed to Vercel.
